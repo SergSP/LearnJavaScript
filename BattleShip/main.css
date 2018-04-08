@@ -65,3 +65,11 @@ form input{
     border-radius: 45px;
     background-color: forestgreen;
 }
+#anewButton{
+    position: absolute;
+    right: 200px;
+    bottom: 0px;
+    font-size: 200%;
+    border-radius: 45px;
+    background-color: forestgreen;
+}

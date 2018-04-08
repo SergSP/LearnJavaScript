@@ -1,7 +1,3 @@
-// $("#tboard td").click(function () {
-//     this.setAttribute('class','hit');
-// });
-
 let controller = {
     guesses: 0,
 
@@ -18,6 +14,14 @@ let controller = {
     },
     clickCapitulation: function () {
         model.startCapitulation();
+    },
+    clickAnew: function () {
+        //if(model.anewFlag !== true) return false;
+        model.anewFlag=true;
+        console.log('click anew');
+        this.guesses=0;
+        model.startGame();
+        return true;
     }
 };
 
@@ -41,12 +45,17 @@ let view = {
 
 let model = {
     boardSize: 7,
-    numShips: 5,
+    numShips: 4,
     shipLength: 2,
     shipSunk: 0,
 
     ships: [],
     guessList: [],
+
+    anewFlag: true,
+    capitulationList: [],
+    displayTimeout:0,
+
     fire: function (guess, invert=false) {
         if(this.guessList.indexOf(guess) >= 0) return false;
         this.guessList.push(guess);
@@ -126,7 +135,7 @@ let model = {
                     y=Number(locations[i][1])+k;
                     calcPos=x.toString()+y.toString();
 
-                    if(calcPos.search('^[0-'+(model.boardSize-1)+']{2}$') !== -1)
+                    if(calcPos.search('^[0-'+(this.boardSize-1)+']{2}$') !== -1)
                         result.push(calcPos);
 
                 }
@@ -144,22 +153,60 @@ let model = {
         }
     },
     startCapitulation: function () {
-        let timeVar=1;
-
-
+        let timeVar=0;
         for(let i=0;i<this.ships.length;i++){
             let ship=this.ships[i];
             for(let j=0;j<ship.locations.length;j++){
                 if(!ship.hits[j]){
-                    setTimeout(model.capitulationFire, timeVar*1000, ship.locations[j]);
+                    this.capitulationList.push(ship.locations[j]);
                     timeVar++;
                 }
             }
         }
+        if(this.capitulationList.length > 0) {
+            this.setFlag();
+            this.capitulationFire(this.capitulationList.shift());
+        }
     },
     capitulationFire:function (cell) {
-        model.fire(cell, true);
-        setTimeout(view.displayHit,1000,cell);
+        if(this.anewFlag){
+            this.unsetFlag();
+            clearTimeout(this.displayTimeout);
+            return false;
+        }
+
+        this.fire(cell, true);
+        if(this.capitulationList.length > 0)
+            setTimeout(this.capitulationFire.bind(this),1000,this.capitulationList.shift());
+        else setTimeout(this.unsetFlag.bind(this),1100);
+
+        this.displayTimeout = setTimeout(view.displayHit.bind(this),1000,cell);
+        return true;
+    },
+    startGame: function () {
+        for(let i=0;i<this.boardSize;i++){
+            for(let j=0;j<this.boardSize;j++){
+                let tdId=i.toString()+j.toString();
+                let elem=document.getElementById(tdId);
+                elem.removeAttribute('class');
+            }
+        }
+        this.guessList=[];
+        this.ships=[];
+        this.shipSunk=0;
+        this.generateShipLocations();
+    },
+    unsetFlag: function () {
+        this.anewFlag=true;
+        //document.getElementById('anewButton').removeAttribute('disabled');
+        document.getElementById('capitulationButton').removeAttribute('disabled');
+        console.log('unset');
+    },
+    setFlag: function () {
+        this.anewFlag=false;
+        //document.getElementById('anewButton').setAttribute('disabled','disabled');
+        document.getElementById('capitulationButton').setAttribute('disabled','disabled');
+        console.log('set');
     }
 };
 window.onload = function () {
@@ -176,4 +223,8 @@ window.onload = function () {
     document.getElementById('capitulationButton').addEventListener("click", function () {
         controller.clickCapitulation();
     });
+    document.getElementById('anewButton').addEventListener("click", function () {
+        controller.clickAnew();
+    });
+
 };

@@ -15,6 +15,9 @@ let controller = {
         }else{
             console.log('Error td id');
         }
+    },
+    clickCapitulation: function () {
+        model.startCapitulation();
     }
 };
 
@@ -26,10 +29,14 @@ let view = {
         let elem=document.getElementById(elemID);
         elem.setAttribute('class','hit');
     },
-    displayMiss: function (elemid) {
-        let elem=document.getElementById(elemid);
+    displayMiss: function (elemID) {
+        let elem=document.getElementById(elemID);
         elem.setAttribute('class','miss');
     },
+    displayInverHit: function (elemID) {
+        let elem=document.getElementById(elemID);
+        elem.setAttribute('class','hitInvert');
+    }
 };
 
 let model = {
@@ -40,7 +47,7 @@ let model = {
 
     ships: [],
     guessList: [],
-    fire: function (guess) {
+    fire: function (guess, invert=false) {
         if(this.guessList.indexOf(guess) >= 0) return false;
         this.guessList.push(guess);
         for (let i = 0; i < this.numShips; i++) {
@@ -49,7 +56,10 @@ let model = {
             if (index >= 0) {
                 if(ship.hits[index]) return false;
                 ship.hits[index] = true;
-                view.displayHit(guess);
+
+                if(!invert) view.displayHit(guess);
+                else view.displayInverHit(guess);
+
                 view.displayMessage('Попадание!');
                 if (this.isSunk(ship)) {
                     this.shipSunk++;
@@ -132,6 +142,24 @@ let model = {
                 this.guessList.push(aroundCells[i]);
             }
         }
+    },
+    startCapitulation: function () {
+        let timeVar=1;
+
+
+        for(let i=0;i<this.ships.length;i++){
+            let ship=this.ships[i];
+            for(let j=0;j<ship.locations.length;j++){
+                if(!ship.hits[j]){
+                    setTimeout(model.capitulationFire, timeVar*1000, ship.locations[j]);
+                    timeVar++;
+                }
+            }
+        }
+    },
+    capitulationFire:function (cell) {
+        model.fire(cell, true);
+        setTimeout(view.displayHit,1000,cell);
     }
 };
 window.onload = function () {
@@ -144,4 +172,8 @@ window.onload = function () {
         });
     });
     model.generateShipLocations();
+
+    document.getElementById('capitulationButton').addEventListener("click", function () {
+        controller.clickCapitulation();
+    });
 };

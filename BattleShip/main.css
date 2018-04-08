@@ -46,6 +46,22 @@ form input{
 .hit{
     background: url("ship.png") no-repeat center center;
 }
+
+.hitInvert{
+    background: url("ship.png") no-repeat center center;
+    background-color: red;
+    opacity: 0.5;
+}
+
 .miss {
     background: url("miss.png") no-repeat center center;
+}
+
+#capitulationButton{
+    position: absolute;
+    right: 0px;
+    bottom: 0px;
+    font-size: 200%;
+    border-radius: 45px;
+    background-color: forestgreen;
 }

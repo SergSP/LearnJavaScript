@@ -154,6 +154,7 @@ let model = {
     },
     startCapitulation: function () {
         let timeVar=0;
+        this.capitulationList=[];
         for(let i=0;i<this.ships.length;i++){
             let ship=this.ships[i];
             for(let j=0;j<ship.locations.length;j++){

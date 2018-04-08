@@ -23,9 +23,12 @@ table{
 td{
     width: 94px;
     height: 94px;
+    cursor: url("cursor.png") 64 64, auto;
 }
 td:hover{
     background-color: aliceblue;
+    /*background-size: 94px 94px;*/
+    /*background-image: url("cursor.png");*/
     opacity: 0.25;
 }
 form{
